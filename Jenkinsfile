@@ -12,7 +12,7 @@ pipeline {
                 // Checkout your source code from your version control system (e.g., Git).
                 // Replace with the appropriate SCM tool and repository URL.
                 // checkout scm
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/idlagit/buildah']])
+                git 'https://github.com/idlagit/buildah.git'
             }
         }
 
