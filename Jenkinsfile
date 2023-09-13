@@ -4,9 +4,10 @@ pipeline {
     environment {
         // define image environment variables
         IMAGE_NAME = "my-apache"
-        TAG_NAME = "1.0.0"
+        IMAGE_TAG = ${GIT_COMMIT_HASH}
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
         DOCKERHUB_REPO_NAME = "buildah"
+        GIT_COMMIT_HASH = "${sh(returnStdout: true, script: 'git rev-parse HEAD')}"
     }
 
     stages {
@@ -49,7 +50,7 @@ pipeline {
                         sh "buildah login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} docker.io"
                         // push to dockerhub registry
                         // Example: docker push my-registry/${IMAGE_NAME} 
-                        sh "buildah push ${IMAGE_NAME} docker://${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${TAG_NAME}"
+                        sh "buildah push ${IMAGE_NAME} docker://${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
                         sh "buildah logout docker.io"
                     }             
                 }
