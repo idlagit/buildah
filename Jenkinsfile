@@ -25,7 +25,7 @@ pipeline {
                     // sh 'sudo apt-get install -y buildah' // Use the appropriate package manager for your system
 
                     // Build the image using Buildah.
-                    sh 'buildah bud -t ${IMAGE_NAME}:${TAG_NAME} -f ${DOCKERFILE_PATH} .'
+                    sh 'buildah bud -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE_PATH} .'
 
                     // List the images to verify that the build was successful.
                     sh 'buildah images'
