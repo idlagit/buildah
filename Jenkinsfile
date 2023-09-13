@@ -12,7 +12,8 @@ pipeline {
                 // Checkout your source code from your version control system (e.g., Git).
                 // Replace with the appropriate SCM tool and repository URL.
                 // checkout scm
-                git 'https://github.com/idlagit/buildah.git'
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/idlagit/buildah']])
+                // git 'https://github.com/idlagit/buildah.git'
             }
         }
 
@@ -20,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Install Buildah if not already installed (Linux specific)
-                    sh 'yum install -y buildah' // Use the appropriate package manager for your system
+                    sh 'sudo yum install -y buildah' // Use the appropriate package manager for your system
 
                     // Build the image using Buildah.
                     sh "buildah bud -t ${IMAGE_NAME} -f ${DOCKERFILE_PATH} ."
