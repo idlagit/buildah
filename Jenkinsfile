@@ -47,13 +47,12 @@ pipeline {
                         usernameVariable: 'DOCKERHUB_USERNAME')]) 
                     {
                         sh "buildah login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} docker.io"
-                    }
-                    
-                    // push to dockerhub registry
-                    // Example: docker push my-registry/${IMAGE_NAME} 
-                    sh "buildah push ${IMAGE_NAME} docker://${DOCKERHUB_USERNAME}/${IMAGE_NAME}:{TAG_NAME}"
-                    
-                    sh "buildah logout"
+                    }             
+                        // push to dockerhub registry
+                        // Example: docker push my-registry/${IMAGE_NAME} 
+                        sh "buildah push ${IMAGE_NAME} docker://${DOCKERHUB_USERNAME}/${IMAGE_NAME}:{TAG_NAME}"
+                        
+                        sh "buildah logout"
                 }
             }
         }
