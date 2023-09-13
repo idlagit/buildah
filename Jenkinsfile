@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage('Push Container Image to ecr') {
+        stage('Push Image to dockerhub') {
             // https://buildah.io/blogs/2018/01/26/using-image-registries-with-buildah.html
             // when {
             //     // Add conditions to determine when to push the image to a container registry
