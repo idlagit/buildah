@@ -28,7 +28,7 @@ pipeline {
                     sh 'buildah bud -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE_PATH} .'
 
                     // List the images to verify that the build was successful.
-                    sh 'buildah images'
+                    sh 'buildah images ${IMAGE_NAME}'
                 }
             }
         }
