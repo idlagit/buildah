@@ -7,8 +7,7 @@ pipeline {
         IMAGE_TAG = "${GIT_COMMIT_HASH}"
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
         DOCKERHUB_REPO_NAME = "buildah"
-        // GIT_COMMIT_HASH = "${sh(returnStdout: true, script: 'git rev-parse HEAD')}"
-        GIT_COMMIT_HASH = sh (script: """git log --format="medium" -1 ${GIT_COMMIT}""", returnStdout:true)
+        GIT_COMMIT_HASH = "${sh(returnStdout: true, script: 'git rev-parse --short HEAD')}"
     }
 
     stages {
