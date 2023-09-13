@@ -2,18 +2,18 @@ pipeline {
     agent any
     
     environment {
-        IMAGE_NAME = "my-web-app-image:latest"
+        // define image environment variables
+        IMAGE_NAME = "my-apache"
+        TAG_NAME = "1.0.0"
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
+        DOCKERHUB_REPO_NAME = "buildah"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout your source code from your version control system (e.g., Git).
-                // Replace with the appropriate SCM tool and repository URL.
-                // checkout scm
+                // checkout code from github
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/idlagit/buildah']])
-                // git 'https://github.com/idlagit/buildah.git'
             }
         }
 
@@ -24,10 +24,36 @@ pipeline {
                     // sh 'sudo yum install -y buildah' // Use the appropriate package manager for your system
 
                     // Build the image using Buildah.
-                    sh "buildah bud -t ${IMAGE_NAME} -f ${DOCKERFILE_PATH} ."
+                    sh "buildah bud -t ${IMAGE_NAME}:${TAG_NAME} -f ${DOCKERFILE_PATH} ."
 
                     // List the images to verify that the build was successful.
                     sh 'buildah images'
+                }
+            }
+        }
+
+        stage('Push Container Image to ecr') {
+            // https://buildah.io/blogs/2018/01/26/using-image-registries-with-buildah.html
+            // when {
+            //     // Add conditions to determine when to push the image to a container registry
+            //     // For example, after successful tests
+            // }
+            steps {
+                script {
+                    // login to dockerhub
+                    withCredentials([usernamePassword(
+                        credentialsId: 'DOCKERHUB_CREDENTIALS', 
+                        passwordVariable: 'DOCKERHUB_PASSWORD',
+                        usernameVariable: 'DOCKERHUB_USERNAME')]) 
+                    {
+                        sh "buildah login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} docker.io"
+                    }
+                    
+                    // push to dockerhub registry
+                    // Example: docker push my-registry/${IMAGE_NAME} 
+                    sh "buildah push ${IMAGE_NAME} docker://${DOCKERHUB_USERNAME}/${IMAGE_NAME}:{TAG_NAME}
+                    
+                    sh "buildah logout"
                 }
             }
         }
