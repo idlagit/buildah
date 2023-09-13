@@ -21,10 +21,10 @@ pipeline {
             steps {
                 script {
                     // Install Buildah if not already installed (Linux specific)
-                    // sh 'sudo yum install -y buildah' // Use the appropriate package manager for your system
+                    // sh 'sudo apt-get install -y buildah' // Use the appropriate package manager for your system
 
                     // Build the image using Buildah.
-                    sh "buildah bud -t ${IMAGE_NAME}:${TAG_NAME} -f ${DOCKERFILE_PATH} ."
+                    sh 'buildah bud -t ${IMAGE_NAME}:${TAG_NAME} -f ${DOCKERFILE_PATH} .'
 
                     // List the images to verify that the build was successful.
                     sh 'buildah images'
@@ -50,7 +50,7 @@ pipeline {
                         // push to dockerhub registry
                         // Example: docker push my-registry/${IMAGE_NAME} 
                         sh "buildah push ${IMAGE_NAME} docker://${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${TAG_NAME}"
-                        sh "buildah logout"
+                        sh "buildah logout docker.io"
                     }             
                 }
             }
