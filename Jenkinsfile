@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Install Buildah if not already installed (Linux specific)
-                    sh 'sudo yum install -y buildah' // Use the appropriate package manager for your system
+                    // sh 'sudo yum install -y buildah' // Use the appropriate package manager for your system
 
                     // Build the image using Buildah.
                     sh "buildah bud -t ${IMAGE_NAME} -f ${DOCKERFILE_PATH} ."
