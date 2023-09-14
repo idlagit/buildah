@@ -2,13 +2,23 @@ pipeline {
     agent any
     
     environment {
-        // define image environment variables
+        // define environment variables
         IMAGE_NAME = "buildapache"
         IMAGE_TAG = "${GIT_COMMIT_HASH}"
+
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
         DOCKERHUB_REPO_NAME = "${IMAGE_NAME}"
+
         ECR_REPO_NAME = "${IMAGE_NAME}"
+        ECR_REGISTRY_URI = "${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+
         GIT_COMMIT_HASH = "${sh(returnStdout: true, script: 'git rev-parse --short HEAD')}"
+
+        AWS_ACCESS_KEY_ID = withCredentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = withCredentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION = 'us-gov-west-1'
+        AWS_ACCOUNT_NO = withCredentials('AWS_ACCOUNT_NO')
+        
     }
 
     stages {
@@ -58,23 +68,39 @@ pipeline {
             }
         }
 
+        stage('Configure awsCLI') {
+            steps {
+                script {
+                    sh "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID"
+                    sh "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY"
+                    sh "aws configure set region $AWS_DEFAULT_REGION"
+                }
+            }
+        }
+
         stage('Push To ECR') {
             // https://buildah.io/blogs/2018/01/26/using-image-registries-with-buildah.html
-            environment {
-                AWS_REGION = "us-gov-west-1"
-            }
+
             steps {
                 script {
                     // login and push to ecr
-                    withCredentials([string(
-                        credentialsId: 'AWS_ACCOUNT_NO', 
-                        variable: 'AWS_ACCOUNT_NO')]) 
+                    // withCredentials([string(
+                    //     credentialsId: 'AWS_ACCOUNT_NO', 
+                    //     variable: 'AWS_ACCOUNT_NO')]) 
                     {
-                        sh "aws ecr get-login-password --region ${env.AWS_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${env.AWS_REGION}.amazonaws.com"
-                        sh "buildah push ${IMAGE_NAME} ${AWS_ACCOUNT_NO}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}"
+                        sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+                        sh "buildah push ${IMAGE_NAME} ${ECR_REGISTRY_URI}/${ECR_REPO_NAME}:${IMAGE_TAG}"
                     }             
                 }
             }
         }        
     }
+
+    post {
+        always {
+            // Clean up AWS CLI configuration
+            sh 'aws configure unset aws_access_key_id'
+            sh 'aws configure unset aws_secret_access_key'
+        }
 }
+
