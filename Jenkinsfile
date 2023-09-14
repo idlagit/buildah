@@ -60,18 +60,18 @@ pipeline {
 
         stage('Push To ECR') {
             // https://buildah.io/blogs/2018/01/26/using-image-registries-with-buildah.html
+            environment {
+                AWS_REGION = "us-gov-west-1"
+            }
             steps {
-                environment {
-                    AWS_REGION = "us-gov-west-1"
-                }
                 script {
                     // login and push to ecr
                     withCredentials([string(
                         credentialsId: 'AWS_ACCOUNT_NO', 
                         variable: 'AWS_ACCOUNT_NO')]) 
                     {
-                        sh "aws ecr get-login-password --region ${AWS_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                        sh "buildah push ${IMAGE_NAME} ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}"
+                        sh "aws ecr get-login-password --region ${env.AWS_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${env.AWS_REGION}.amazonaws.com"
+                        sh "buildah push ${IMAGE_NAME} ${AWS_ACCOUNT_NO}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}"
                     }             
                 }
             }
