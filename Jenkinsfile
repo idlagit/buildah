@@ -3,15 +3,16 @@ pipeline {
     
     environment {
         // define image environment variables
-        IMAGE_NAME = "myapache"
+        IMAGE_NAME = "buildahApache"
         IMAGE_TAG = "${GIT_COMMIT_HASH}"
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
-        DOCKERHUB_REPO_NAME = "buildah"
+        DOCKERHUB_REPO_NAME = "${IMAGE_NAME}"
+        ECR_REPO_NAME = "${IMAGE_NAME}"
         GIT_COMMIT_HASH = "${sh(returnStdout: true, script: 'git rev-parse --short HEAD')}"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 // checkout code from github
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/idlagit/buildah']])
@@ -33,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Push Image to dockerhub') {
+        stage('Push To Dockerhub') {
             // https://buildah.io/blogs/2018/01/26/using-image-registries-with-buildah.html
             // when {
             //     // Add conditions to determine when to push the image to a container registry
@@ -56,5 +57,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Push To ECR') {
+            // https://buildah.io/blogs/2018/01/26/using-image-registries-with-buildah.html
+            steps {
+                environment {
+                    AWS_REGION = "us-gov-west-1"
+                }
+                script {
+                    // login and push to ecr
+                    withCredentials([string(
+                        credentialsId: 'AWS_ACCOUNT_NO', 
+                        variable: 'AWS_ACCOUNT_NO')]) 
+                    {
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                        sh "buildah push ${IMAGE_NAME} ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}"
+                    }             
+                }
+            }
+        }        
     }
 }
