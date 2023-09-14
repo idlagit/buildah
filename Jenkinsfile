@@ -14,10 +14,10 @@ pipeline {
 
         GIT_COMMIT_HASH = "${sh(returnStdout: true, script: 'git rev-parse --short HEAD')}"
 
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_ACCESS_KEY_ID = withCredentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = withCredentials('AWS_SECRET_ACCESS_KEY')
         AWS_DEFAULT_REGION = 'us-gov-west-1'
-        AWS_ACCOUNT_NO = credentials('AWS_ACCOUNT_NO')
+        AWS_ACCOUNT_NO = withCredentials('AWS_ACCOUNT_NO')
         
     }
 
@@ -91,7 +91,19 @@ pipeline {
                     sh "buildah push ${IMAGE_NAME} ${ECR_REGISTRY_URI}/${ECR_REPO_NAME}:${IMAGE_TAG}"         
                 }
             }
-        }        
+        }
+
+        stage('Clean up') {
+            steps {
+                script {
+                    sh '''
+                        aws configure unset aws_access_key_id
+                        aws configure unset aws_secret_access_key
+                        buildah rmi --all
+                    '''
+                }
+            }
+        }       
     }
 }
 
