@@ -97,9 +97,9 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        buildah rmi --all
                         aws configure unset aws_access_key_id
                         aws configure unset aws_secret_access_key
-                        buildah rmi --all
                     '''
                 }
             }
