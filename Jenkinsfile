@@ -87,10 +87,8 @@ pipeline {
                     // withCredentials([string(
                     //     credentialsId: 'AWS_ACCOUNT_NO', 
                     //     variable: 'AWS_ACCOUNT_NO')]) 
-                    {
-                        sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-                        sh "buildah push ${IMAGE_NAME} ${ECR_REGISTRY_URI}/${ECR_REPO_NAME}:${IMAGE_TAG}"
-                    }             
+                    sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | buildah login --username AWS --password-stdin ${AWS_ACCOUNT_NO}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+                    sh "buildah push ${IMAGE_NAME} ${ECR_REGISTRY_URI}/${ECR_REPO_NAME}:${IMAGE_TAG}"         
                 }
             }
         }        
