@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         // define image environment variables
-        IMAGE_NAME = "buildahApache"
+        IMAGE_NAME = "buildapache"
         IMAGE_TAG = "${GIT_COMMIT_HASH}"
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
         DOCKERHUB_REPO_NAME = "${IMAGE_NAME}"
