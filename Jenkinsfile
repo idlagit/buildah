@@ -93,13 +93,5 @@ pipeline {
             }
         }        
     }
-
-    post {
-        always {
-            // Clean up AWS CLI configuration
-            sh 'aws configure unset aws_access_key_id'
-            sh 'aws configure unset aws_secret_access_key'
-        }
-    }
 }
 
