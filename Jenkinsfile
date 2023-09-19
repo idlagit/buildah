@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         // define image environment variables
-        IMAGE_NAME = "buildapache"
+        IMAGE_NAME = "buildacon"
         IMAGE_TAG = "${GIT_COMMIT_HASH}"
         // define docker registry environment variables
         DOCKERFILE_PATH = "Dockerfile" // Update with the path to your Dockerfile
@@ -33,7 +33,8 @@ pipeline {
             steps {
                 script {
                     // Build the image using Buildah. Ensure buildah is installed on agent.
-                    sh 'buildah bud -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE_PATH} .'
+                    // sh 'buildah bud -t ${IMAGE_NAME}:${IMAGE_TAG} -f ${DOCKERFILE_PATH} .'
+                    sh 'buildah bud -t ${IMAGE_NAME}:${IMAGE_TAG} .'
 
                     // List the image to verify that the build was successful.
                     sh 'buildah images ${IMAGE_NAME}'
